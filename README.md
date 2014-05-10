@@ -1,9 +1,8 @@
-SoundMaster , created by [Guillaume Sander](http://twitter.com/leguiii) and [Jérome Botineau](http://twitter.com/TobinoJ).
+SoundMaster provide a fun way to listen to your music remotely with your smartphone.
 
 ## Quick start
 
-- [Download the latest release](https://github.com/twbs/bootstrap/archive/v3.1.1.zip).
-- Clone the repo: `git clone https://github.com/twbs/bootstrap.git`.
+- Clone the repo: `git clone https://github.com/eckolol/SoundMaster.git`.
 - Install with [NPM](http://npmjs.org): `npm install`.
 
 ### What's included
