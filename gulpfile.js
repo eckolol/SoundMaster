@@ -6,7 +6,7 @@ var gulp = require('gulp'),
 
 
 gulp.task('lint', function () {
-  gulp.src(['lib/*.js','public/js/*.js'],{base: '.'})
+  gulp.src(['app.js','public/js/*.js'],{base: '.'})
   	.pipe(jshint())
     .pipe(jshint.reporter(stylish));
 })
@@ -16,7 +16,7 @@ gulp.task('dev', function () {
   bower();
 
 
-  nodemon({ script: 'lib/server.js', ext: 'html js', ignore: ['node_modules/**'] })
+  nodemon({ script: 'app.js', ext: 'html js', ignore: ['node_modules/**'] })
     .on('change', ['lint'])
     .on('restart', function () {
       console.log('restarted!')

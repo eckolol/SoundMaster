@@ -2,9 +2,9 @@
   "name": "SoundMaster",
   "version": "0.0.0",
   "description": "SoundMaster ===========",
-  "main": "lib/index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "mocha"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,14 @@
   "homepage": "https://github.com/eckolol/SoundMaster",
   "dependencies": {
     "express": "^4.1.2",
-    "vlc-api": "git://github.com/Tobino/node-vlc-api.git"
+    "vlc-api": "git://github.com/Tobino/node-vlc-api.git",
+    "socket.io": "^0.9.16"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "app.js",
+      "data-cover-never": "node_modules"
+    }
   },
   "devDependencies": {
     "mocha": "^1.18.2",
@@ -30,8 +37,11 @@
     "gulp-nodemon": "^1.0.2",
     "gulp-bower": "0.0.4",
     "gulp-jshint": "^1.5.5",
+    "jshint": "^2.5.0",
     "jshint-stylish": "^0.2.0",
     "gulp-open": "^0.2.8",
-    "supertest": "^0.12.1"
+    "should": "^3.3.1",
+    "socket.io-client": "^0.9.16",
+    "nock": "^0.30.0"
   }
 }
