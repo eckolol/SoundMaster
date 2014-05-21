@@ -15,7 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "ratchet": "git@github.com:twbs/ratchet.git#~2.0.2",
-    "angular": "~1.2.16"
+    "SoundMaster": "git@github.com:eckolol/soundmaster-webapp.git"
   }
 }
