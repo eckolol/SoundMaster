@@ -15,8 +15,12 @@ gulp.task('dev', function () {
   //Install dependencies
   bower();
 
-
-  nodemon({ script: 'app.js', ext: 'html js', ignore: ['node_modules/**'] })
+  nodemon({
+      script: 'app.js',
+      ext: 'html js',
+      ignore: ['node_modules/**'],
+      env: { 'NODE_ENV': 'development' }
+    })
     .on('change', ['lint'])
     .on('restart', function () {
       console.log('restarted!')
