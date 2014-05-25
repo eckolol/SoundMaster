@@ -77,10 +77,11 @@ function playNextSong () {
     vlc.request('status',function(err, data) {
 
       if (err) throw new Error('Please Start Vlc');
+      if (typeof data.state === 'undefined') throw new Error('Stop service on port 8080 and restart Vlc');
 
       var track = '';
       if(sound.type == 'youtube'){
-        track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream.id.$t.substring(42));
+        track = encodeURI(sound.stream.id.$t);
       }
 
       if (!data.position && data.state === 'stopped' && track !=='') {
