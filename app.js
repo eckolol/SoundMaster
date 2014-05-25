@@ -54,7 +54,6 @@ io.sockets.on('connection', function(socket) {
         return false;
       }
     });
-    console.log(playlist[arrayKey].liker);
     var test = playlist[arrayKey].liker;
     if (typeof test[cookies.id] === 'undefined' || test[cookies.id] === false) {
       playlist[arrayKey].liker[cookies.id] = true;

@@ -5,7 +5,13 @@
 
 <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
 <div class="content">
-
+    <div class="slider">
+      <div class="slide-group">
+        <div class="slide">
+          <img ng-src="{{current.sound.stream.media$group.media$thumbnail[0].url}}" alt="Argo" width="320" height="150">
+        </div>
+      </div>
+    </div>
     <ul class="table-view">
       <li class="table-view-cell table-view-divider">Playlist</li>
       <li class="table-view-cell media" ng-repeat="video in videos">

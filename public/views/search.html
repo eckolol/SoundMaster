@@ -16,10 +16,10 @@
       <li class="table-view-cell table-view-divider">Résultat</li>
       <li class="table-view-cell media" ng-repeat="video in videos">
         <a class="navigate-right" href="" data-transition="slide-in" ng-click="addSong(video)">
-          <img style="width:64px" class="media-object pull-left" ng-src="{{video.media$group.media$thumbnail[0].url}}" />
+          <img width="48px" width="64px" style="width:64px" class="media-object pull-left" ng-src="{{video.media$group.media$thumbnail[0].url}}"/>
           <div class="media-body">
             By {{video.author[0].name.$t}}
-          <p>{{video.media$group.media$title.$t}}</p>
+            <p>{{video.media$group.media$title.$t}}</p>
           </div>
         </a>
       </li>
