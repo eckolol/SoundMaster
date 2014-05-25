@@ -1,0 +1,39 @@
+<!-- Make sure all your bars are the first things in your <body> -->
+<header class="bar bar-nav">
+  <h1 class="title">SoundMaster</h1>
+</header>
+
+<div class="bar bar-standard bar-header-secondary">
+  <form>
+    <input ng-model="searchSong" type="search" placeholder="Search" ng-keyup="search()">
+  </form>
+</div>
+
+<!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
+<div class="content">
+  
+    <ul class="table-view">
+      <li class="table-view-cell table-view-divider">Résultat</li>
+      <li class="table-view-cell media" ng-repeat="video in videos">
+        <a class="navigate-right" href="" data-transition="slide-in" ng-click="addSong(video)">
+          <img style="width:64px" class="media-object pull-left" ng-src="{{video.media$group.media$thumbnail[0].url}}" />
+          <div class="media-body">
+            By {{video.author[0].name.$t}}
+          <p>{{video.media$group.media$title.$t}}</p>
+          </div>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+<nav class="bar bar-tab">
+  <a class="tab-item" href="#/poc">
+    Test
+  </a>
+  <a class="tab-item" href="#/">
+    Main
+  </a>
+  <a class="tab-item active" href="#/search">
+    Search
+  </a>
+</nav>

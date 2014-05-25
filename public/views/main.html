@@ -1,0 +1,34 @@
+<!-- Make sure all your bars are the first things in your <body> -->
+<header class="bar bar-nav">
+  <h1 class="title">SoundMaster</h1>
+</header>
+
+<!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
+<div class="content">
+
+    <ul class="table-view">
+      <li class="table-view-cell table-view-divider">Playlist</li>
+      <li class="table-view-cell media" ng-repeat="video in videos">
+        <a class="navigate-right" href="" data-transition="slide-in" ng-click="toggleLikeSong(video.key)">
+          <img style="width:64px" class="media-object pull-left" ng-src="{{video.sound.stream.media$group.media$thumbnail[0].url}}" />
+          <div class="media-body">
+            By {{video.sound.stream.author[0].name.$t}}
+          <p>{{video.sound.stream.media$group.media$title.$t}}</p>
+          </div>
+          <span class="badge">{{video.like}}</span>
+        </a>
+      </li>
+    </ul>
+
+</div>
+<nav class="bar bar-tab">
+  <a class="tab-item" href="#/poc">
+    Test
+  </a>
+  <a class="tab-item active" href="#/">
+    Main
+  </a>
+  <a class="tab-item" href="#/search">
+    Search
+  </a>
+</nav>
