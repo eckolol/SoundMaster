@@ -16,6 +16,7 @@ var server = app.listen(1337);
 var io = require('socket.io').listen(server);
 
 var playlist = [];
+var currentSong = [];
 var playlistKey = 0;
 
 io.sockets.on('connection', function(socket) {
@@ -29,6 +30,7 @@ io.sockets.on('connection', function(socket) {
   });
   socket.on('getPlaylist', function(sound){
     io.sockets.emit('playlist',playlist);
+    io.sockets.emit('currentSong',currentSong);
   });
 
   socket.on('toggleLikeSong', function(key){
@@ -66,8 +68,10 @@ function playNextSong () {
       if (!data.position && data.state === 'stopped' && track !=='') {
         console.log('start new Song');
         vlc.status.play(track,function(){
+          currentSong = info;
           playlist.shift();
           io.sockets.emit('playlist',playlist);
+          io.sockets.emit('currentSong',currentSong);
         });
       }
 
