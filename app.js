@@ -18,34 +18,39 @@ var playlist = [];
 
 io.sockets.on('connection', function(socket) {
   socket.on('playStream', function(sound){
-    var track = '';
-    if(sound.type == 'youtube'){
-      track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream);
-    }
-
-    playlist.push(track);
+    playlist.push(sound);
     console.log('Add new Song');
+    io.sockets.emit('playlist',playlist);
     playNextSong();
     io.sockets.emit('done');
 
   });
+  socket.on('getPlaylist', function(sound){
+    io.sockets.emit('playlist',playlist);
+  });
 });
 
 function playNextSong () {
-  var track = playlist[0];
-  vlc.request('status',function(err, data) {
+  var sound = playlist[0];
+  if (typeof sound !=='undefined') {
+    vlc.request('status',function(err, data) {
 
-    if (err) throw new Error('Please Start Vlc');
+      if (err) throw new Error('Please Start Vlc');
 
-    if (!data.position && data.state === 'stopped' && typeof track !=='undefined') {
-      console.log('start new Song');
-      console.log(track);
-      vlc.status.play(track,function(){
-        playlist.shift();
-      });
-    }
+      var track = '';
+      if(sound.type == 'youtube'){
+        track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream.id.$t.substring(42));
+      }
 
-  });
+      if (!data.position && data.state === 'stopped' && track !=='') {
+        console.log('start new Song');
+        vlc.status.play(track,function(){
+          playlist.shift();
+        });
+      }
+
+    });
+  }
 }
 
 
