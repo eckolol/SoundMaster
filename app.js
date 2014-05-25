@@ -3,6 +3,7 @@ var express = require('express'),
     util    = require('util'),
     vlc     = require('vlc-api')(),
     _       = require('underscore'),
+    cookie  = require('cookie'),
     app     = express();
 
 app.use(express.static(process.cwd() + '/public'));
@@ -20,9 +21,19 @@ var currentSong = [];
 var playlistKey = 0;
 
 io.sockets.on('connection', function(socket) {
+
+  var cookies = {};
+  if (typeof socket.handshake.headers.cookie !=='undefined') {
+    cookies = cookie.parse(socket.handshake.headers.cookie);
+  }
+
+  if (typeof cookies.id ==='undefined') {
+    io.sockets.socket(socket.id).emit("clientId", socket.id);
+  }
+
   socket.on('playStream', function(sound){
     playlistKey++;
-    playlist.push({key:playlistKey, sound: sound, like: 1});
+    playlist.push({key:playlistKey, sound: sound, like: 1, liker:[] });
     console.log('Add new Song');
     io.sockets.emit('playlist',playlist);
     playNextSong();
@@ -43,7 +54,15 @@ io.sockets.on('connection', function(socket) {
         return false;
       }
     });
-    playlist[arrayKey].like++;
+    console.log(playlist[arrayKey].liker);
+    var test = playlist[arrayKey].liker;
+    if (typeof test[cookies.id] === 'undefined' || test[cookies.id] === false) {
+      playlist[arrayKey].liker[cookies.id] = true;
+      playlist[arrayKey].like++;
+    } else {
+      playlist[arrayKey].liker[cookies.id] = false;
+      playlist[arrayKey].like--;
+    }
     playlist = _.sortBy(playlist, function(sound){ return -sound.like; });
     io.sockets.emit('playlist',playlist);
   });
