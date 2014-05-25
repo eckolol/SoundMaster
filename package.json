@@ -19,7 +19,8 @@
   "dependencies": {
     "express": "^4.1.2",
     "vlc-api": "git://github.com/Tobino/node-vlc-api.git",
-    "socket.io": "^0.9.16"
+    "socket.io": "^0.9.16",
+    "underscore": "^1.6.0"
   },
   "config": {
     "blanket": {
