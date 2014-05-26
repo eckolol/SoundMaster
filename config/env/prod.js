@@ -2,5 +2,6 @@
 
 module.exports =
 {
-    "vlcBase" : ""
+    vlcBase : "",
+    log : false
 }

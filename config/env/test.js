@@ -2,5 +2,6 @@
 
 module.exports =
 {
-    "vlcBase" : "http://soundmaster.test"
+    vlcBase : "http://soundmaster.test",
+    log : false
 }

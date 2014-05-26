@@ -14,7 +14,7 @@ vlc._base = conf.vlcBase;
 
 var server = app.listen(1337);
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(server, { log: conf.log });
 
 var playlist = [];
 var currentSong = [];
@@ -45,6 +45,10 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('toggleLikeSong', function(key){
+    //unauthenticated client
+    if (typeof cookies.id === 'undefined')
+      cookies.id = socket.id;
+
     var arrayKey = -1;
     _.find(playlist, function(v, k) {
       if (v.key === key.key) {
@@ -54,6 +58,10 @@ io.sockets.on('connection', function(socket) {
         return false;
       }
     });
+
+    //no Song
+    if (arrayKey === -1) return false;
+
     var test = playlist[arrayKey].liker;
     if (typeof test[cookies.id] === 'undefined' || test[cookies.id] === false) {
       playlist[arrayKey].liker[cookies.id] = true;
@@ -76,12 +84,12 @@ function playNextSong () {
     var sound = info.sound;
     vlc.request('status',function(err, data) {
 
-      if (err) throw new Error('Please Start Vlc');
+      if (err) throw new Error('Please Start Vlc: '+err);
       if (typeof data.state === 'undefined') throw new Error('Stop service on port 8080 and restart Vlc');
 
       var track = '';
       if(sound.type == 'youtube'){
-        track = encodeURI(sound.stream.id.$t);
+        track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream.id.$t.substring(42));
       }
 
       if (!data.position && data.state === 'stopped' && track !=='') {

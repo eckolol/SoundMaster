@@ -2,5 +2,6 @@
 
 module.exports =
 {
-    "vlcBase" : "http://localhost:8080"
+    vlcBase : "http://:password@localhost:8080",
+    log : true
 }
