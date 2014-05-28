@@ -6,7 +6,7 @@ var should = require('should'),
     assert = require('chai').assert,
     io     = require('socket.io-client');
 
-conf = new config();
+var conf = new config();
 var base = conf.vlcBase;
 var socketURL = 'http://localhost:1337';
 var sound = {
@@ -15,16 +15,9 @@ var sound = {
 };
 
 
-process.env.NODE_ENV = 'test';
-
 var app = require('../app');
 
-
-
-
 describe("Music Server",function(){
-
-  var socket;
 
   beforeEach(function(done) {
       // Setup
@@ -50,7 +43,7 @@ describe("Music Server",function(){
       done();
   });
 
-  it('Should play a youtube song', function(done){
+  it('Should play a youtube song #0', function(done){
     nock(base)
       .get('/requests/status.json')
       .reply(200, {
@@ -71,7 +64,7 @@ describe("Music Server",function(){
     });
   });
 
-  it('Should add a youtube song', function(done){
+  it('Should add a youtube song #1', function(done){
     nock(base)
       .get('/requests/status.json')
       .reply(200, {
@@ -84,7 +77,7 @@ describe("Music Server",function(){
     });
   });
 
-  it('Should like the first song', function(done){
+  it('Should like the first song #2', function(done){
     var keySong = 2;
     nock(base)
       .get('/requests/status.json')
@@ -99,7 +92,7 @@ describe("Music Server",function(){
     });
   });
 
-  it('Should unlike the second song', function(done){
+  it('Should unlike the second song #3', function(done){
     var keySong = 3;
     var liked = false;
     nock(base)

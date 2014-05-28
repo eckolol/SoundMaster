@@ -8,85 +8,117 @@ var express = require('express'),
 
 app.use(express.static(process.cwd() + '/public'));
 
+//Environment configs
 conf = new config();
-
 vlc._base = conf.vlcBase;
 
+//Start application and Socket
 var server = app.listen(1337);
-
 var io = require('socket.io').listen(server, { log: conf.log });
 
-var playlist = [];
-var currentSong = [];
-var playlistKey = 0;
+//Class Playlist
+function Playlist () {
+  this.playlist = [];
+  this.currentSong = {};
+  this.playlistKey = 0;
+}
+
+// Playlist methods
+Playlist.prototype.send = function() {
+  io.sockets.emit('playlist', this.playlist);
+  io.sockets.emit('currentSong', this.currentSong);
+};
+
+Playlist.prototype.add = function(sound, cookie) {
+  this.playlistKey++;
+  this.playlist.push({
+    key: this.playlistKey,
+    sound: sound,
+    like: 0,
+    liker:[]
+  });
+  this.toggleLikeSong(this.playlistKey, cookie);
+  console.log('Add new Song');
+};
+
+Playlist.prototype.sort = function() {
+  this.playlist = _.sortBy(this.playlist, function(sound){ return -sound.like; });
+  io.sockets.emit('playlist', this.playlist);
+};
+
+Playlist.prototype.toggleLikeSong = function(key, cookie) {
+  //find song
+  var arrayKey = -1;
+  _.find(this.playlist, function(v, k) {
+    if (v.key === key) {
+      arrayKey = k;
+      return true;
+    } else {
+      return false;
+    }
+  });
+  //no Song
+  if (arrayKey !== -1){
+    //like or unlike Song
+    var song = this.playlist[arrayKey];
+    if (typeof song.liker[cookie.id] === 'undefined' || song.liker[cookie.id] === false) {
+      song.liker[cookie.id] = true;
+      song.like++;
+    } else {
+      song.liker[cookie.id] = false;
+      song.like--;
+    }
+    //sort playlist by like
+    this.sort();
+  }
+};
+
+
+var p = new Playlist();
 
 io.sockets.on('connection', function(socket) {
 
-  var cookies = {};
-  if (typeof socket.handshake.headers.cookie !=='undefined') {
-    cookies = cookie.parse(socket.handshake.headers.cookie);
-  }
-
-  if (typeof cookies.id ==='undefined') {
+  //get cookie or send it
+  var cookie = {};
+  if (typeof socket.handshake.headers.cookie !=='undefined')
+    cookie = cookie.parse(socket.handshake.headers.cookie);
+  if (typeof cookie.id ==='undefined'){
     io.sockets.socket(socket.id).emit("clientId", socket.id);
+    //unauthenticated client
+    cookie.id = socket.id;
   }
 
+  //add a song
   socket.on('playStream', function(sound){
-    playlistKey++;
-    playlist.push({key:playlistKey, sound: sound, like: 1, liker:[] });
-    console.log('Add new Song');
-    io.sockets.emit('playlist',playlist);
+    p.add(sound, cookie);
     playNextSong();
-
   });
+
+  //send playlist
   socket.on('getPlaylist', function(sound){
-    io.sockets.emit('playlist',playlist);
-    io.sockets.emit('currentSong',currentSong);
+    p.send();
   });
 
-  socket.on('toggleLikeSong', function(key){
-    //unauthenticated client
-    if (typeof cookies.id === 'undefined')
-      cookies.id = socket.id;
-
-    var arrayKey = -1;
-    _.find(playlist, function(v, k) {
-      if (v.key === key.key) {
-        arrayKey = k;
-        return true;
-      } else {
-        return false;
-      }
-    });
-
-    //no Song
-    if (arrayKey === -1) return false;
-
-    var test = playlist[arrayKey].liker;
-    if (typeof test[cookies.id] === 'undefined' || test[cookies.id] === false) {
-      playlist[arrayKey].liker[cookies.id] = true;
-      playlist[arrayKey].like++;
-    } else {
-      playlist[arrayKey].liker[cookies.id] = false;
-      playlist[arrayKey].like--;
-    }
-    playlist = _.sortBy(playlist, function(sound){ return -sound.like; });
-    io.sockets.emit('playlist',playlist);
+  //like a song
+  socket.on('toggleLikeSong', function(req){
+    p.toggleLikeSong(req.key, cookie);
   });
 
 });
 
 
-
+//Play next song when Vlc is stopped
 function playNextSong () {
-  var info = playlist[0];
+  var info = p.playlist[0];
   if (typeof info !=='undefined') {
-    var sound = info.sound;
     vlc.request('status',function(err, data) {
 
-      if (err) throw new Error('Please Start Vlc: '+err);
-      if (typeof data.state === 'undefined') throw new Error('Stop service on port 8080 and restart Vlc');
+      if (err)
+        throw new Error('Please Start Vlc: '+err);
+      if (typeof data.state === 'undefined')
+        throw new Error('Stop service on port 8080 and restart Vlc');
 
+      var sound = info.sound;
       var track = '';
       if(sound.type == 'youtube'){
         track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream.id.$t.substring(42));
@@ -95,10 +127,9 @@ function playNextSong () {
       if (!data.position && data.state === 'stopped' && track !=='') {
         console.log('start new Song');
         vlc.status.play(track,function(){
-          currentSong = info;
-          playlist.shift();
-          io.sockets.emit('playlist',playlist);
-          io.sockets.emit('currentSong',currentSong);
+          p.currentSong = info;
+          p.playlist.shift();
+          p.send();
         });
       }
 
@@ -106,7 +137,7 @@ function playNextSong () {
   }
 }
 
-
+//get Vlc Status every 5sec
 setInterval(function main () {
   playNextSong();
 }, 5000);
