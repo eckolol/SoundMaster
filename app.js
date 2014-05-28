@@ -29,7 +29,7 @@ Playlist.prototype.send = function() {
   io.sockets.emit('currentSong', this.currentSong);
 };
 
-Playlist.prototype.add = function(sound, cookie) {
+Playlist.prototype.add = function(sound, cookies) {
   this.playlistKey++;
   this.playlist.push({
     key: this.playlistKey,
@@ -37,7 +37,7 @@ Playlist.prototype.add = function(sound, cookie) {
     like: 0,
     liker:[]
   });
-  this.toggleLikeSong(this.playlistKey, cookie);
+  this.toggleLikeSong(this.playlistKey, cookies);
   console.log('Add new Song');
 };
 
@@ -46,7 +46,7 @@ Playlist.prototype.sort = function() {
   io.sockets.emit('playlist', this.playlist);
 };
 
-Playlist.prototype.toggleLikeSong = function(key, cookie) {
+Playlist.prototype.toggleLikeSong = function(key, cookies) {
   //find song
   var arrayKey = -1;
   _.find(this.playlist, function(v, k) {
@@ -61,11 +61,11 @@ Playlist.prototype.toggleLikeSong = function(key, cookie) {
   if (arrayKey !== -1){
     //like or unlike Song
     var song = this.playlist[arrayKey];
-    if (typeof song.liker[cookie.id] === 'undefined' || song.liker[cookie.id] === false) {
-      song.liker[cookie.id] = true;
+    if (typeof song.liker[cookies.id] === 'undefined' || song.liker[cookies.id] === false) {
+      song.liker[cookies.id] = true;
       song.like++;
     } else {
-      song.liker[cookie.id] = false;
+      song.liker[cookies.id] = false;
       song.like--;
     }
     //sort playlist by like
@@ -78,19 +78,19 @@ var p = new Playlist();
 
 io.sockets.on('connection', function(socket) {
 
-  //get cookie or send it
-  var cookie = {};
+  //get cookies or send it
+  var cookies = {};
   if (typeof socket.handshake.headers.cookie !=='undefined')
-    cookie = cookie.parse(socket.handshake.headers.cookie);
-  if (typeof cookie.id ==='undefined'){
+    cookies = cookie.parse(socket.handshake.headers.cookie);
+  if (typeof cookies.id ==='undefined'){
     io.sockets.socket(socket.id).emit("clientId", socket.id);
     //unauthenticated client
-    cookie.id = socket.id;
+    cookies.id = socket.id;
   }
 
   //add a song
   socket.on('playStream', function(sound){
-    p.add(sound, cookie);
+    p.add(sound, cookies);
     playNextSong();
   });
 
@@ -101,7 +101,7 @@ io.sockets.on('connection', function(socket) {
 
   //like a song
   socket.on('toggleLikeSong', function(req){
-    p.toggleLikeSong(req.key, cookie);
+    p.toggleLikeSong(req.key, cookies);
   });
 
 });
