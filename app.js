@@ -116,8 +116,17 @@ function playNextSong () {
   if (!_.isUndefined(info)) {
     vlc.request('status',function(err, data) {
 
-      if (err)
-        console.log('Please Start Vlc - '+err);
+      if (err){
+        if (!_.isUndefined(data)) {
+          if (data.indexOf('<title>Unauthorized</title>') > -1) {
+            console.log('Please change your Vlc\'s password');
+          }
+        }
+        if (conf.vlcBase === '') {
+          console.log('Please change your config file (config/env)');
+        }
+        console.log('Please Restart Vlc - '+err);
+      }
       else if (typeof data.state === 'undefined')
         console.log('Stop service on port 8080 and restart Vlc');
       else {
