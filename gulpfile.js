@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
     nodemon = require('gulp-nodemon'),
     jshint = require('gulp-jshint'),
+    open = require('gulp-open'),
     bower = require('gulp-bower'),
     stylish = require('jshint-stylish');
 
@@ -14,6 +15,11 @@ gulp.task('lint', function () {
 gulp.task('dev', function () {
   //Install dependencies
   bower();
+  var options = {
+    url: 'http://localhost:1337'
+  };
+  gulp.src('./public/index.html')
+    .pipe(open('', options));
 
   nodemon({
       script: 'app.js',

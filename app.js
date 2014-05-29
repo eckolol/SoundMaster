@@ -1,35 +1,38 @@
-var express = require('express'),
-    config    = require('./config/config'),
-    util    = require('util'),
-    vlc     = require('vlc-api')(),
-    _       = require('underscore'),
-    cookie  = require('cookie'),
-    app     = express();
-
-app.use(express.static(process.cwd() + '/public'));
+var static = require('node-static'),
+    http   = require('http'),
+    config = require('./config/config'),
+    util   = require('util'),
+    vlc    = require('vlc-api')(),
+    _      = require('lodash'),
+    cookie = require('cookie');
 
 //Environment configs
 conf = new config();
 vlc._base = conf.vlcBase;
 
-//Start application and Socket
-var server = app.listen(1337);
+//Start server and socket
+var fileServer = new static.Server('./public');
+var server = http.createServer(function (request, response) {
+    request.addListener('end', function () {
+        fileServer.serve(request, response);
+    }).resume();
+}).listen(1337);
 var io = require('socket.io').listen(server, { log: conf.log });
 
-//Class Playlist
-function Playlist () {
+//Class Jukebox
+function Jukebox () {
   this.playlist = [];
   this.currentSong = {};
   this.playlistKey = 0;
 }
 
-// Playlist methods
-Playlist.prototype.send = function() {
+// Jukebox methods
+Jukebox.prototype.send = function() {
   io.sockets.emit('playlist', this.playlist);
   io.sockets.emit('currentSong', this.currentSong);
 };
 
-Playlist.prototype.add = function(sound, cookies) {
+Jukebox.prototype.add = function(sound, cookies) {
   this.playlistKey++;
   this.playlist.push({
     key: this.playlistKey,
@@ -41,12 +44,12 @@ Playlist.prototype.add = function(sound, cookies) {
   console.log('Add new Song');
 };
 
-Playlist.prototype.sort = function() {
+Jukebox.prototype.sort = function() {
   this.playlist = _.sortBy(this.playlist, function(sound){ return -sound.like; });
   io.sockets.emit('playlist', this.playlist);
 };
 
-Playlist.prototype.toggleLikeSong = function(key, cookies) {
+Jukebox.prototype.toggleLikeSong = function(key, cookies) {
   //find song
   var arrayKey = -1;
   _.find(this.playlist, function(v, k) {
@@ -61,7 +64,7 @@ Playlist.prototype.toggleLikeSong = function(key, cookies) {
   if (arrayKey !== -1){
     //like or unlike Song
     var song = this.playlist[arrayKey];
-    if (typeof song.liker[cookies.id] === 'undefined' || song.liker[cookies.id] === false) {
+    if (_.isUndefined(song.liker[cookies.id]) || !song.liker[cookies.id]) {
       song.liker[cookies.id] = true;
       song.like++;
     } else {
@@ -74,15 +77,15 @@ Playlist.prototype.toggleLikeSong = function(key, cookies) {
 };
 
 
-var p = new Playlist();
+var j = new Jukebox();
 
 io.sockets.on('connection', function(socket) {
 
   //get cookies or send it
   var cookies = {};
-  if (typeof socket.handshake.headers.cookie !=='undefined')
+  if (!_.isUndefined(socket.handshake.headers.cookie))
     cookies = cookie.parse(socket.handshake.headers.cookie);
-  if (typeof cookies.id ==='undefined'){
+  if (_.isUndefined(cookies.id)){
     io.sockets.socket(socket.id).emit("clientId", socket.id);
     //unauthenticated client
     cookies.id = socket.id;
@@ -90,18 +93,18 @@ io.sockets.on('connection', function(socket) {
 
   //add a song
   socket.on('playStream', function(sound){
-    p.add(sound, cookies);
+    j.add(sound, cookies);
     playNextSong();
   });
 
   //send playlist
   socket.on('getPlaylist', function(sound){
-    p.send();
+    j.send();
   });
 
   //like a song
   socket.on('toggleLikeSong', function(req){
-    p.toggleLikeSong(req.key, cookies);
+    j.toggleLikeSong(req.key, cookies);
   });
 
 });
@@ -109,28 +112,29 @@ io.sockets.on('connection', function(socket) {
 
 //Play next song when Vlc is stopped
 function playNextSong () {
-  var info = p.playlist[0];
-  if (typeof info !=='undefined') {
+  var info = j.playlist[0];
+  if (!_.isUndefined(info)) {
     vlc.request('status',function(err, data) {
 
       if (err)
-        throw new Error('Please Start Vlc: '+err);
-      if (typeof data.state === 'undefined')
-        throw new Error('Stop service on port 8080 and restart Vlc');
+        console.log('Please Start Vlc - '+err);
+      else if (typeof data.state === 'undefined')
+        console.log('Stop service on port 8080 and restart Vlc');
+      else {
+        var sound = info.sound;
+        var track = '';
+        if(sound.type == 'youtube'){
+          track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream.id.$t.substring(42));
+        }
 
-      var sound = info.sound;
-      var track = '';
-      if(sound.type == 'youtube'){
-        track = encodeURI('http://www.youtube.com/watch?v=' + sound.stream.id.$t.substring(42));
-      }
-
-      if (!data.position && data.state === 'stopped' && track !=='') {
-        console.log('start new Song');
-        vlc.status.play(track,function(){
-          p.currentSong = info;
-          p.playlist.shift();
-          p.send();
-        });
+        if (!data.position && data.state === 'stopped' && track !=='') {
+          console.log('start new Song');
+          vlc.status.play(track,function(){
+            j.currentSong = info;
+            j.playlist.shift();
+            j.send();
+          });
+        }
       }
 
     });

@@ -17,10 +17,10 @@
   },
   "homepage": "https://github.com/eckolol/SoundMaster",
   "dependencies": {
-    "express": "^4.1.2",
+    "node-static": "^0.7.3",
     "vlc-api": "git://github.com/Tobino/node-vlc-api.git",
     "socket.io": "^0.9.16",
-    "underscore": "^1.6.0",
+    "lodash": "^2.4.1",
     "cookie": "^0.1.2"
   },
   "config": {
@@ -42,7 +42,6 @@
     "jshint": "^2.5.0",
     "jshint-stylish": "^0.2.0",
     "gulp-open": "^0.2.8",
-    "should": "^3.3.1",
     "socket.io-client": "^0.9.16",
     "nock": "^0.30.0",
     "chai": "^1.9.1"

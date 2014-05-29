@@ -1,7 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-var should = require('should'),
-    nock   = require('nock'),
+var nock   = require('nock'),
     config = require('../config/config'),
     assert = require('chai').assert,
     io     = require('socket.io-client');
