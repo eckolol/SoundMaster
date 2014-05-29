@@ -1,7 +1,7 @@
 {
   "name": "SoundMaster",
-  "version": "0.0.0",
-  "description": "SoundMaster ===========",
+  "version": "0.0.5",
+  "description": "SoundMaster",
   "main": "app.js",
   "scripts": {
     "test": "make test"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git://github.com/eckolol/SoundMaster.git"
   },
-  "author": "",
+  "author": "Jérôme Botineau <jeromebotineau@gmail.com>",
   "license": "GNU GPLV2",
   "bugs": {
     "url": "https://github.com/eckolol/SoundMaster/issues"

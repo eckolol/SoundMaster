@@ -1,9 +1,9 @@
 {
   "name": "SoundMaster",
-  "version": "0.0.0",
+  "version": "0.0.5",
   "homepage": "https://github.com/eckolol/SoundMaster",
   "authors": [
-    "Jerome Botineau <jeromebotineau@gmail.com>"
+    "Jérôme Botineau <jeromebotineau@gmail.com>"
   ],
   "license": "GNU GPLV2",
   "private": true,
@@ -15,6 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "SoundMaster": "git@github.com:eckolol/soundmaster-webapp.git"
+    "SoundMaster": "git@github.com:eckolol/soundmaster-webapp.git#0.0.5"
   }
 }

@@ -8,6 +8,8 @@ SoundMaster provide a fun way to listen to your music remotely with your smartph
 ## Quick start
 
 - Clone the repo: `git clone https://github.com/eckolol/SoundMaster.git`.
+- `cd SoundMaster`
+- `git checkout 0.0.5`
 - Install with [NPM](http://npmjs.org): `npm install`.
 - Go to VLC > preferences > Lua HTTP, set up a password Then modify "password" in "config/env/prod.js"
 - Restart Vlc
